@@ -1,33 +1,41 @@
-/**
- * useFirebaseLive
- * ---------------
- * Subscribes to the /live node in Firebase RTDB and returns the latest
- * sensor reading.  The subscription is cleaned up automatically when the
- * component that calls this hook unmounts.
- *
- * Shape of /live (written by the ESP32 firmware):
- *   hr, spo2, temperature, humidity, aqi, motionMag, tilt,
- *   fallFlag, mlClass, riskLevel, riskLabel, sosActive, timestamp
- */
-
 import { useEffect, useState } from 'react';
 import { ref, onValue, off } from 'firebase/database';
 import { db } from '../lib/firebase';
 
 export interface LiveReading {
-  hr:          number;
-  spo2:        number;
-  temperature: number;
-  humidity:    number;
-  aqi:         number;
-  motionMag:   number;
-  tilt:        number;
-  fallFlag:    number;   // 0 | 1
-  mlClass:     number;   // 0=Relaxed 1=Normal 2=Stress
-  riskLevel:   number;   // 0=Normal 1=Warning 2=Critical
-  riskLabel:   string;   // "Normal" | "Warning" | "Critical"
-  sosActive:   boolean;
-  timestamp:   string;
+  // Core vitals
+  hr:             number;
+  spo2:           number;
+  temperature:    number;
+  humidity:       number;
+  aqi:            number;
+  motionMag:      number;
+  tilt:           number;
+  // ML & risk
+  mlClass:        number;   // 0=Relaxed 1=Normal 2=Stress
+  riskLevel:      number;   // 0=Normal 1=Warning 2=Critical
+  riskLabel:      string;
+  // Primary condition (v3)
+  conditionCode:  number;
+  conditionLabel: string;
+  // Derived binary flags (0 | 1)
+  fallFlag:       number;
+  inactivity:     number;
+  tachycardia:    number;
+  bradycardia:    number;
+  lowSpo2:        number;
+  criticalSpo2:   number;
+  fever:          number;
+  hypothermia:    number;
+  heatStress:     number;
+  excessMotion:   number;
+  sensorError:    number;
+  batteryLow:     number;
+  batteryPct:     number;
+  // AI Health Risk Score 0–100
+  healthScore:    number;
+  sosActive:      boolean;
+  timestamp:      string;
 }
 
 interface UseFirebaseLiveResult {
@@ -47,9 +55,7 @@ export function useFirebaseLive(): UseFirebaseLiveResult {
     const unsubscribe = onValue(
       liveRef,
       (snapshot) => {
-        if (snapshot.exists()) {
-          setData(snapshot.val() as LiveReading);
-        }
+        if (snapshot.exists()) setData(snapshot.val() as LiveReading);
         setLoading(false);
         setError(null);
       },
@@ -59,7 +65,6 @@ export function useFirebaseLive(): UseFirebaseLiveResult {
       },
     );
 
-    // Cleanup: detach listener on unmount
     return () => off(liveRef, 'value', unsubscribe);
   }, []);
 
