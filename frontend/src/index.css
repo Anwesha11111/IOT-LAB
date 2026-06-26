@@ -273,3 +273,10 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Pulse animation for live indicator dot */
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(202, 255, 191, 0.7); }
+  70%  { box-shadow: 0 0 0 8px rgba(202, 255, 191, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(202, 255, 191, 0); }
+}

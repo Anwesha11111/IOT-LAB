@@ -5,7 +5,7 @@ const LandingPage = () => {
   return (
     <div className="landing-bg">
       {/* Navigation */}
-      <nav style={{ padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <nav style={{ padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div className="brand-logo">
           <ShieldCheck size={28} color="#6c8cff" />
           <span>EdgeGuard Health</span>
@@ -17,7 +17,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', maxWidth: '1200px', width: '100%', gap: '64px', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
             <div
