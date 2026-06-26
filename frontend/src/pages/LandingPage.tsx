@@ -46,7 +46,7 @@ const LandingPage = () => {
               <Link to="/dashboard" className="btn-primary" style={{ padding: '16px 36px' }}>
                 Open Dashboard <Activity size={20} />
               </Link>
-              <Link to="/demo" className="btn-secondary" style={{ padding: '16px 36px' }}>
+              <Link to="/vitals" className="btn-secondary" style={{ padding: '16px 36px' }}>
                 Live Demo
               </Link>
             </div>

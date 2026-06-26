@@ -280,3 +280,10 @@ body {
   70%  { box-shadow: 0 0 0 8px rgba(202, 255, 191, 0); }
   100% { box-shadow: 0 0 0 0   rgba(202, 255, 191, 0); }
 }
+
+/* Pulse animation for SOS button */
+@keyframes pulse-red {
+  0%   { box-shadow: 0 0 0 0   rgba(193, 18, 31, 0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(193, 18, 31, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(193, 18, 31, 0); }
+}
