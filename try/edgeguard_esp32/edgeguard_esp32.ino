@@ -109,6 +109,15 @@
 #define COND_AQI_CRIT       18
 
 // ---------------------------------------------------------------
+// Condition struct — defined early so all functions can use it
+// ---------------------------------------------------------------
+struct ConditionResult {
+  int    code;
+  String label;
+  String display;   // text for LED matrix
+};
+
+// ---------------------------------------------------------------
 // Globals
 // ---------------------------------------------------------------
 MD_Parola P = MD_Parola(HARDWARE_TYPE, DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES);
@@ -196,15 +205,8 @@ int calcHealthScore(int mlClass, float hr, float spo2, float motMag,
 
 // ---------------------------------------------------------------
 // Primary condition determination  (highest-priority wins)
-// Returns a COND_* code and a display string
 // ---------------------------------------------------------------
-struct Condition {
-  int    code;
-  String label;
-  String display;   // text for LED matrix
-};
-
-Condition determineCondition(
+ConditionResult determineCondition(
     int mlClass, float hr, float spo2, float temp, float humid,
     float motMag, float tilt, bool fall, bool inactivity,
     int aqi, int battPct, bool sos, bool sensorErr) {
@@ -307,10 +309,14 @@ int condToRiskLevel(int condCode) {
 }
 
 // ---------------------------------------------------------------
-// Timestamp
+// Timestamp — real UTC time from NTP
 // ---------------------------------------------------------------
 String getISO8601Time() {
-  return "2026-06-26T00:58:00Z";  // Replace with NTP in production
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) return "1970-01-01T00:00:00Z";
+  char buf[25];
+  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  return String(buf);
 }
 
 // ---------------------------------------------------------------
@@ -336,6 +342,23 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(300); }
   Serial.println("\n[INFO] IP: " + WiFi.localIP().toString());
   P.print("CONN");
+
+  // ── NTP time sync (required for SSL cert validation) ────────
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.print("[INFO] Syncing time");
+  struct tm timeinfo;
+  int attempts = 0;
+  while (!getLocalTime(&timeinfo) && attempts < 20) {
+    Serial.print(".");
+    delay(500);
+    attempts++;
+  }
+  if (attempts < 20) {
+    Serial.printf("\n[INFO] Time: %02d:%02d:%02d UTC\n",
+      timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+  } else {
+    Serial.println("\n[WARN] NTP sync failed — SSL may not work");
+  }
 
   config.api_key               = FIREBASE_API_KEY;
   config.database_url          = FIREBASE_DATABASE_URL;
@@ -429,7 +452,7 @@ void loop() {
   int mlClass = mlClassify(heartRate, spo2, temp, motionMag, tiltAngle);
 
   // ── 9. Primary condition ────────────────────────────────────
-  Condition cond = determineCondition(
+  ConditionResult cond = determineCondition(
     mlClass, heartRate, spo2, temp, humid,
     motionMag, tiltAngle, fallDetected, inactivity,
     aqiValue, battPct, sosPressed, sensorErr
