@@ -14,9 +14,9 @@ const firebaseConfig = {
   authDomain:        'iot-lab-e8ac7.firebaseapp.com',
   databaseURL:       'https://iot-lab-e8ac7-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId:         'iot-lab-e8ac7',
-  storageBucket:     'iot-lab-e8ac7.appspot.com',
-  messagingSenderId: '439019607398',
-  appId:             '1:439019607398:web:edgeguard',
+  storageBucket:     'iot-lab-e8ac7.firebasestorage.app',
+  messagingSenderId: '539837012582',
+  appId:             '1:539837012582:web:ecbe24030f8c11646faba7',
 };
 
 // Prevent double-init in HMR / StrictMode

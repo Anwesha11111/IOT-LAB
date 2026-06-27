@@ -5,6 +5,22 @@ import { getCondition, scoreBand } from '../lib/conditions';
 
 const ML_LABELS = ['Relaxed', 'Normal', 'Stress'] as const;
 
+/**
+ * Safely convert any timestamp to a readable string.
+ * Handles: ISO string, Firestore Timestamp {seconds, nanoseconds}, epoch number.
+ */
+function formatTs(ts: any): string {
+  if (!ts || ts === '—') return '—';
+  try {
+    if (typeof ts === 'object' && 'seconds' in ts) {
+      return new Date((ts.seconds as number) * 1000).toLocaleString();
+    }
+    const d = new Date(ts as string);
+    if (!isNaN(d.getTime())) return d.toLocaleString();
+  } catch { /* */ }
+  return String(ts);
+}
+
 function RiskChip({ label }: { label: string }) {
   const map: Record<string, { bg: string; color: string; icon: React.ReactNode }> = {
     Critical: { bg: 'rgba(255,200,200,0.5)', color: '#c1121f', icon: <AlertTriangle size={12} /> },
@@ -26,11 +42,6 @@ function ScoreChip({ score }: { score: number }) {
       {score ?? '—'}
     </span>
   );
-}
-
-function formatTs(ts: string): string {
-  try { const d = new Date(ts); if (!isNaN(d.getTime())) return d.toLocaleString(); } catch { /* */ }
-  return ts ?? '—';
 }
 
 const Alerts = () => {

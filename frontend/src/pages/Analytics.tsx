@@ -15,11 +15,16 @@ function avg(arr: number[]): number {
   return arr.reduce((s, v) => s + v, 0) / arr.length;
 }
 
-function groupByDay(alerts: { timestamp: string }[]) {
+function groupByDay(alerts: { timestamp: any }[]) {
   const map: Record<string, number> = {};
   for (const a of alerts) {
     try {
-      const d = new Date(a.timestamp);
+      let d: Date;
+      if (a.timestamp && typeof a.timestamp === 'object' && 'seconds' in a.timestamp) {
+        d = new Date((a.timestamp.seconds as number) * 1000);
+      } else {
+        d = new Date(a.timestamp as string);
+      }
       if (isNaN(d.getTime())) continue;
       const key = `${d.getMonth() + 1}/${d.getDate()}`;
       map[key] = (map[key] ?? 0) + 1;
