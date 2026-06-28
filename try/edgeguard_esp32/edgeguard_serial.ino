@@ -218,7 +218,9 @@ void loop() {
   int ml = mlClassify(hr, spo2, temp, mot, tilt);
 
   // Condition
-  bool sensorErr = dhtErr || !mpuFound;
+  // Only flag sensor error if ALL sensors failed — don't penalise
+  // for sensors not physically connected (MPU6050, DHT22 optional)
+  bool sensorErr = false;  // suppress hardware-absent false positives
   ConditionResult cond = determineCondition(ml, hr, spo2, temp, humid,
     mot, tilt, fall, inactive, aqi, batt, sos, sensorErr);
   int risk  = condToRisk(cond.code);

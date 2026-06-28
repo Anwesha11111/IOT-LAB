@@ -135,11 +135,21 @@ def main():
                     hr    = data.get("hr", 0)
                     spo2  = data.get("spo2", 0)
 
-                    print(
+                    status_line = (
                         f"[{count:04d}] {cond:<18} risk={risk} score={score:3d} "
                         f"HR={hr:.1f} SpO2={spo2:.1f}%"
                         + (" *** SOS ***" if sos else "")
                     )
+
+                    # Visual + audio alert for critical events
+                    if risk == 2 or sos:
+                        print("\a", end="", flush=True)  # system beep
+                        print("=" * 60)
+                        print(f"  🚨 CRITICAL ALERT: {cond}")
+                        print(f"  HR={hr:.1f} SpO2={spo2:.1f}% Score={score}")
+                        print("=" * 60)
+                    else:
+                        print(status_line)
 
                     # Push to RTDB
                     try:
